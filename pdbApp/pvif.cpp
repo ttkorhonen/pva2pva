@@ -182,8 +182,8 @@ struct pvTimeAlarm : public pvPlain {
 
     pvd::BitSet maskALWAYS, maskALARM;
 
-    pvd::PVLongPtr sec;
-    pvd::PVIntPtr status, severity, nsec, userTag;
+    pvd::PVLongPtr sec, userTag;
+    pvd::PVIntPtr status, severity, nsec;
     pvd::PVStringPtr message;
 
     pvTimeAlarm() :nsecMask(0) {}
@@ -282,7 +282,7 @@ void attachTime(pvTimeAlarm& pvm, const pvd::PVStructurePtr& pv)
     FMAP(sec, PVLong, "timeStamp.secondsPastEpoch", ALWAYS);
     FMAP(nsec, PVInt, "timeStamp.nanoseconds", ALWAYS);
 #ifdef HAVE_UTAG
-    FMAP(userTag, PVInt, "timeStamp.userTag", ALWAYS);
+    FMAP(userTag, PVLong, "timeStamp.userTag", ALWAYS);
 #endif
 #undef FMAP
 }
@@ -662,7 +662,7 @@ void findNSMask(pvTimeAlarm& pvmeta, pdbRecordIterator& info, const epics::pvDat
         }
     }
     if(pvmeta.nsecMask>0 && pvmeta.nsecMask<=32) {
-        pvmeta.userTag = pvalue->getSubField<pvd::PVInt>("timeStamp.userTag");
+        pvmeta.userTag = pvalue->getSubField<pvd::PVLong>("timeStamp.userTag");
         if(!pvmeta.userTag) {
             pvmeta.nsecMask = 0; // struct doesn't have userTag
         } else {
@@ -836,7 +836,7 @@ pvd::StructureConstPtr buildTimeStamp()
     return pvd::FieldBuilder::begin()
                     ->add("secondsPastEpoch", pvd::pvLong)
                     ->add("nanoseconds", pvd::pvInt)
-                    ->add("userTag", pvd::pvInt)
+                    ->add("userTag", pvd::pvLong)
                   ->createStructure();
 }
 
